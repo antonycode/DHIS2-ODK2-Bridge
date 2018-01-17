@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.opendatakit</groupId>
+    <artifactId>dhis2-sync</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>dhis2-sync-common</module>
+        <module>dhis2-sync-cli</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <java.version>1.8</java.version>
+        <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
+        <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
+        <maven.dependency.plugin.version>3.0.2</maven.dependency.plugin.version>
+        <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
+
+        <org.opendatakit.aggregate-rest-interface.version>2017-06-22</org.opendatakit.aggregate-rest-interface.version>
+        <org.opendatakit.sync-client.version>[2.0.0, 2.1.0)</org.opendatakit.sync-client.version>
+
+        <org.hisp.dhis.version>2.27</org.hisp.dhis.version>
+
+        <com.fasterxml.jackson.version>2.9.3</com.fasterxml.jackson.version>
+
+        <com.squareup.okhttp3.version>3.9.1</com.squareup.okhttp3.version>
+
+        <io.airlift.airline.version>0.8</io.airlift.airline.version>
+
+        <org.apache.logging.log4j.version>2.9.1</org.apache.logging.log4j.version>
+
+        <!-- For DHIS2 -->
+        <com.google.guava.version>19.0</com.google.guava.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.compiler.plugin.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven.assembly.plugin.version}</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>${mainClass}</mainClass>
+                            </manifest>
+                        </archive>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+
+                        <!-- skip by default -->
+                        <skipAssembly>true</skipAssembly>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven.dependency.plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${maven.install.plugin.version}</version>
+                    <!-- apply this only on the root project -->
+                    <inherited>false</inherited>
+                    <executions>
+                        <execution>
+                            <id>install-aggregate-rest-interface</id>
+                            <configuration>
+                                <groupId>org.opendatakit</groupId>
+                                <artifactId>aggregate-rest-interface</artifactId>
+                                <version>${org.opendatakit.aggregate-rest-interface.version}</version>
+                                <packaging>jar</packaging>
+                                <file>${project.basedir}/dependencies/aggregate-rest-interface-2017-06-22.jar</file>
+                                <javadoc>${project.basedir}/dependencies/aggregate-rest-interface-2017-06-22-javadoc.jar</javadoc>
+                                <sources>${project.basedir}/dependencies/aggregate-rest-interface-2017-06-22-sources.jar</sources>
+                            </configuration>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>install-file</goal>
+                            </goals>
+                        </execution>
+
+                        <execution>
+                            <id>install-sync-client</id>
+                            <configuration>
+                                <groupId>org.opendatakit</groupId>
+                                <artifactId>sync-client</artifactId>
+                                <packaging>jar</packaging>
+                                <file>${project.basedir}/dependencies/sync-client-2.0.3.jar</file>
+                                <javadoc>${project.basedir}/dependencies/sync-client-2.0.3-javadoc.jar</javadoc>
+                                <sources>${project.basedir}/dependencies/sync-client-2.0.3-sources.jar</sources>
+                                <pomFile>${project.basedir}/dependencies/sync-client-2.0.3.pom</pomFile>
+                            </configuration>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>install-file</goal>
+                            </goals>
+                        </execution>
+
+                        <execution>
+                            <id>install-dhis-service-dxf2</id>
+                            <configuration>
+                                <groupId>org.hisp.dhis</groupId>
+                                <artifactId>dhis-service-dxf2</artifactId>
+                                <version>${org.hisp.dhis.version}</version>
+                                <packaging>jar</packaging>
+                                <file>${project.basedir}/dependencies/dhis-service-dxf2-2.27.jar</file>
+                                <updateReleaseInfo>true</updateReleaseInfo>
+                            </configuration>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>install-file</goal>
+                            </goals>
+                        </execution>
+
+                        <execution>
+                            <id>install-dhis-api</id>
+                            <configuration>
+                                <groupId>org.hisp.dhis</groupId>
+                                <artifactId>dhis-api</artifactId>
+                                <version>${org.hisp.dhis.version}</version>
+                                <packaging>jar</packaging>
+                                <file>${project.basedir}/dependencies/dhis-api-2.27.jar</file>
+                                <updateReleaseInfo>true</updateReleaseInfo>
+                            </configuration>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>install-file</goal>
+                            </goals>
+                        </execution>
+
+                        <execution>
+                            <id>install-dhis</id>
+                            <configuration>
+                                <groupId>org.hisp.dhis</groupId>
+                                <artifactId>dhis-support-system</artifactId>
+                                <version>${org.hisp.dhis.version}</version>
+                                <packaging>jar</packaging>
+                                <file>${project.basedir}/dependencies/dhis-support-system-2.27.jar</file>
+                                <updateReleaseInfo>true</updateReleaseInfo>
+                            </configuration>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>install-file</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.opendatakit</groupId>
+                <artifactId>dhis2-sync-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.opendatakit</groupId>
+                <artifactId>sync-client</artifactId>
+                <version>${org.opendatakit.sync-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendatakit</groupId>
+                <artifactId>aggregate-rest-interface</artifactId>
+                <version>${org.opendatakit.aggregate-rest-interface.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hisp.dhis</groupId>
+                <artifactId>dhis-service-dxf2</artifactId>
+                <version>${org.hisp.dhis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hisp.dhis</groupId>
+                <artifactId>dhis-api</artifactId>
+                <version>${org.hisp.dhis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hisp.dhis</groupId>
+                <artifactId>dhis-support-system</artifactId>
+                <version>${org.hisp.dhis.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${com.fasterxml.jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${com.squareup.okhttp3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-bom</artifactId>
+                <version>${org.apache.logging.log4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Dependencies for DHIS2 -->
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${com.google.guava.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
