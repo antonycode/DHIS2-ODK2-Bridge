@@ -1,5 +1,7 @@
 # DHIS2-ODK2-Bridge
 
+This utility copies data between a DHIS2 server and a Sync Endpoint server.
+
 ## Build
  
 #### Jar
