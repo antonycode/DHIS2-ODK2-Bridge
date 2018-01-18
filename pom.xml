@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.opendatakit</groupId>
-    <artifactId>dhis2-sync</artifactId>
+    <artifactId>dhis2-odk2-bridge</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>dhis2-sync-common</module>
-        <module>dhis2-sync-cli</module>
+        <module>dhis2-odk2-bridge-common</module>
+        <module>dhis2-odk2-bridge-cli</module>
     </modules>
 
     <properties>
@@ -195,7 +195,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.opendatakit</groupId>
-                <artifactId>dhis2-sync-common</artifactId>
+                <artifactId>dhis2-odk2-bridge-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

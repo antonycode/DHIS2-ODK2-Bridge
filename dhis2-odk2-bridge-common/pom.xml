@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>dhis2-odk2-bridge</artifactId>
+        <groupId>org.opendatakit</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>dhis2-odk2-bridge-common</artifactId>
+    <version>${project.parent.version}</version>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.opendatakit</groupId>
+            <artifactId>aggregate-rest-interface</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendatakit</groupId>
+            <artifactId>sync-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hisp.dhis</groupId>
+            <artifactId>dhis-service-dxf2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hisp.dhis</groupId>
+            <artifactId>dhis-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hisp.dhis</groupId>
+            <artifactId>dhis-support-system</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <!-- DO NOT REMOVE, used by aggregate-rest-interface and dhis2 -->
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+
+        <!-- Dependencies for DHIS2 -->
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+    </dependencies>
+</project>
