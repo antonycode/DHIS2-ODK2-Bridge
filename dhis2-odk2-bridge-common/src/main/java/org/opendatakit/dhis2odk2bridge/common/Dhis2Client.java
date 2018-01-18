@@ -112,7 +112,7 @@ public class Dhis2Client {
         .newBuilder()
         .addPathSegment(Dhis2Path.DATA_VALUE_SETS)
         .addQueryParameter("dryRun", Boolean.toString(importOptions.isDryRun()))
-        .addQueryParameter("idScheme", importOptions.getIdSchemes().getIdScheme().getIdentifiableString())
+        .addQueryParameter("idScheme", IdScheme.NAME.getIdentifiableString())
         .addQueryParameter("async", Boolean.toString(false)) // async import not supported
         .build();
 
