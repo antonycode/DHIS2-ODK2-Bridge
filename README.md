@@ -21,7 +21,8 @@ This utility copies data between a DHIS2 server and a Sync Endpoint server.
  
 #### JAR
 
-  - Clone this repository, `git clone https://github.com/uw-ictd/DHIS2-ODK2-Bridge.git`
+  - Download this repository, [DHIS2-ODK2-Bridge.zip](archive/master.zip)  
+  Or clone it, `git clone https://github.com/uw-ictd/DHIS2-ODK2-Bridge.git`
   - Run `mvn validate package` in project root directory
   - After the command returns, the JAR will be available under `dhis2-odk2-bridge-cli/target`
 
