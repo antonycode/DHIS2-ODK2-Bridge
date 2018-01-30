@@ -10,15 +10,15 @@ import org.hisp.dhis.common.Pager;
 import org.hisp.dhis.dxf2.common.ImportOptions;
 import org.hisp.dhis.dxf2.datavalueset.DataValueSet;
 import org.hisp.dhis.dxf2.importsummary.ImportSummary;
-import org.opendatakit.dhis2odk2bridge.common.model.DataSets;
-import org.opendatakit.dhis2odk2bridge.common.model.WebMessage;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.opendatakit.dhis2odk2bridge.common.model.*;
 import org.opendatakit.dhis2odk2bridge.common.consts.Dhis2Path;
 import org.opendatakit.dhis2odk2bridge.common.consts.MimeType;
-import org.opendatakit.dhis2odk2bridge.common.model.PagerMixin;
 import org.opendatakit.dhis2odk2bridge.common.util.Util;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class Dhis2Client {
@@ -76,6 +76,17 @@ public class Dhis2Client {
     }
   }
 
+  public Optional<String> getDataSetId(String name) throws IOException {
+    Objects.requireNonNull(name);
+
+    return getDataSets()
+        .getDataSets()
+        .stream()
+        .filter(dataSet -> dataSet.getName().equals(name))
+        .findAny()
+        .map(DataSet::getId);
+  }
+
   public DataValueSet getDataValueSets(String dataSet, String orgUnit, String startDate, String endDate,
                                        boolean children, boolean includeDeleted) throws IOException {
     Objects.requireNonNull(dataSet);
@@ -125,6 +136,34 @@ public class Dhis2Client {
     try (Response response = httpClient.newCall(request).execute()) {
       return extractEntityFromResponse(ImportSummary.class, response, objectMapper, "failed to post data value set");
     }
+  }
+
+  public OrgUnits getOrgUnits() throws IOException {
+    HttpUrl url = baseUrl
+        .newBuilder()
+        .addPathSegment(Dhis2Path.ORG_UNITS)
+        .build();
+
+    Request request = baseRequest
+        .newBuilder()
+        .url(url)
+        .get()
+        .build();
+
+    try (Response response = httpClient.newCall(request).execute()) {
+      return extractEntityFromResponse(OrgUnits.class, response, objectMapper, "failed to get organization units");
+    }
+  }
+
+  public Optional<String> getOrgUnitId(String name) throws IOException {
+    Objects.requireNonNull(name);
+
+    return getOrgUnits()
+        .getOrganisationUnits()
+        .stream()
+        .filter(ou -> ou.getDisplayName().equals(name))
+        .findAny()
+        .map(OrgUnit::getId);
   }
 
   private <T> T extractEntityFromResponse(Class<T> klass, Response response,

@@ -5,4 +5,5 @@ public class Dhis2Path {
   public static final String DATA_VALUE_SETS = "dataValueSets";
   public static final String EVENTS = "events";
   public static final String TEI = "trackedEntityInstances";
+  public static final String ORG_UNITS = "organisationUnits";
 }

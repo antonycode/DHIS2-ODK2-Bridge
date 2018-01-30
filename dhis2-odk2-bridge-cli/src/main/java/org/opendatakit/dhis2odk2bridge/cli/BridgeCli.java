@@ -47,7 +47,7 @@ public class BridgeCli {
     logger.info("Using Sync Endpoint server {}", config.syncEndpointUrl);
     logger.info("Using DHIS2 server {}", config.dhis2Url);
 
-    logger.info("Pushing {} table{} to DHIS2",
+    logger.info("Pushing {} table {} to DHIS2",
         config.toDhis2.size(), config.toDhis2.size() > 1 ? "s" : "");
     logger.info("Pushing {} data set{} to Sync Endpoint",
         config.toSyncEndpoint.size(), config.toSyncEndpoint.size() > 1 ? "s" : "");
@@ -130,18 +130,52 @@ public class BridgeCli {
 
   private static Optional<List<RowOutcome>> pushToSyncEndpoint(String tableId, SyncOptions options,
                                                                SimpleSyncClient syncClient, Dhis2Client dhis2Client) {
-    DataValueSet dataValueSets;
+    Optional<String> dataSetId;
     try {
-      dataValueSets =
-          dhis2Client.getDataValueSets(options.dataSet, options.orgUnit, options.startDate, options.endDate,
-              options.children, options.includeDeleted);
+      dataSetId = dhis2Client.getDataSetId(tableId);
+    } catch (IOException e) {
+      logger.error("failed to lookup data set {}", tableId);
+      logger.catching(e);
+      return Optional.empty();
+    }
+
+    if (!dataSetId.isPresent()) {
+      logger.error("failed to find data set id for data set {}", tableId);
+      return Optional.empty();
+    }
+
+    String orgUnits;
+    try {
+      orgUnits = convertOrgUnitsToString(dhis2Client, options.orgUnit);
+    } catch (IOException e) {
+      logger.error("failed to retrieve organization units for data set {}", tableId);
+      logger.catching(e);
+      return Optional.empty();
+    }
+
+    if (orgUnits == null) {
+      logger.error("at least 1 valid organization unit is required for {}", tableId);
+      return Optional.empty();
+    }
+
+    DataValueSet dataValueSet;
+    try {
+      dataValueSet =
+          dhis2Client.getDataValueSets(
+              dataSetId.get(),
+              orgUnits,
+              options.startDate,
+              options.endDate,
+              options.children,
+              options.includeDeleted
+          );
     } catch (IOException e) {
       logger.error("failed to retrieve data value sets from data set {}", tableId);
       logger.catching(e);
       return Optional.empty();
     }
 
-    if (dataValueSets.getDataValues().isEmpty()) {
+    if (dataValueSet.getDataValues().isEmpty()) {
       logger.info("data set {} is empty, skipped", tableId);
       return Optional.empty();
     }
@@ -155,7 +189,7 @@ public class BridgeCli {
       return Optional.empty();
     }
 
-    Map<DataValueIdentifier, List<DataValue>> dvGroupedByIdentifier = dataValueSets
+    Map<DataValueIdentifier, List<DataValue>> dvGroupedByIdentifier = dataValueSet
         .getDataValues()
         .stream()
         .collect(Collectors.groupingBy(DataValueIdentifier::new));
@@ -178,6 +212,25 @@ public class BridgeCli {
       logger.catching(e);
       return Optional.empty();
     }
+  }
+
+  private static String convertOrgUnitsToString(Dhis2Client dhis2Client, String orgUnitNames) throws IOException {
+    Objects.requireNonNull(dhis2Client);
+    Objects.requireNonNull(orgUnitNames);
+
+    StringJoiner stringJoiner = new StringJoiner(",");
+
+    for (String s : orgUnitNames.split(",")) {
+      Optional<String> id = dhis2Client.getOrgUnitId(s);
+
+      if (id.isPresent()) {
+        stringJoiner.add(id.get());
+      } else {
+        logger.warn("failed to find organization unit with name {}", s);
+      }
+    }
+
+    return stringJoiner.length() == 0 ? null : stringJoiner.toString();
   }
 
   private static Optional<String> rowIdFinder(DataValueIdentifier dvId, List<RowResource> rows) {

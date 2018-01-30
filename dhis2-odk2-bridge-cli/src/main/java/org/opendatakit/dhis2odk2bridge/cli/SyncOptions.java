@@ -5,7 +5,6 @@ import org.hisp.dhis.dxf2.common.ImportOptions;
 public class SyncOptions {
   public ImportOptions importOptions;
 
-  public String dataSet;
   public String orgUnit;
   public String startDate;
   public String endDate;
