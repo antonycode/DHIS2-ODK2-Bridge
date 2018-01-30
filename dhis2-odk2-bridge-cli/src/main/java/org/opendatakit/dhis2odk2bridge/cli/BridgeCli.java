@@ -47,7 +47,7 @@ public class BridgeCli {
     logger.info("Using Sync Endpoint server {}", config.syncEndpointUrl);
     logger.info("Using DHIS2 server {}", config.dhis2Url);
 
-    logger.info("Pushing {} table {} to DHIS2",
+    logger.info("Pushing {} table{} to DHIS2",
         config.toDhis2.size(), config.toDhis2.size() > 1 ? "s" : "");
     logger.info("Pushing {} data set{} to Sync Endpoint",
         config.toSyncEndpoint.size(), config.toSyncEndpoint.size() > 1 ? "s" : "");
