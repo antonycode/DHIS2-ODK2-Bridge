@@ -1,7 +1,8 @@
-package org.opendatakit.dhis2odk2bridge.cli;
+package org.opendatakit.dhis2odk2bridge.cli.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Config {
@@ -19,6 +20,11 @@ public class Config {
 
   @JsonProperty("toSyncEndpoint")
   public Map<String, SyncOptions> toSyncEndpoint;
+
+  public Config() {
+    toDhis2 = new HashMap<>();
+    toSyncEndpoint = new HashMap<>();
+  }
 
   @Override
   public String toString() {

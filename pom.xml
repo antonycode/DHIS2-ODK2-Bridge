@@ -27,16 +27,15 @@
 
         <org.hisp.dhis.version>2.27</org.hisp.dhis.version>
 
-        <com.fasterxml.jackson.version>2.9.3</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.9.4</com.fasterxml.jackson.version>
 
         <com.squareup.okhttp3.version>3.9.1</com.squareup.okhttp3.version>
 
-        <io.airlift.airline.version>0.8</io.airlift.airline.version>
-
-        <org.apache.logging.log4j.version>2.9.1</org.apache.logging.log4j.version>
+        <org.apache.logging.log4j.version>2.10.0</org.apache.logging.log4j.version>
 
         <!-- For DHIS2 -->
         <com.google.guava.version>19.0</com.google.guava.version>
+        <org.geotools.opengis.version>18.2</org.geotools.opengis.version>
     </properties>
 
     <build>
@@ -171,13 +170,29 @@
                         </execution>
 
                         <execution>
-                            <id>install-dhis</id>
+                            <id>install-dhis-support</id>
                             <configuration>
                                 <groupId>org.hisp.dhis</groupId>
                                 <artifactId>dhis-support-system</artifactId>
                                 <version>${org.hisp.dhis.version}</version>
                                 <packaging>jar</packaging>
                                 <file>${project.basedir}/dependencies/dhis-support-system-2.27.jar</file>
+                                <updateReleaseInfo>true</updateReleaseInfo>
+                            </configuration>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>install-file</goal>
+                            </goals>
+                        </execution>
+
+                        <execution>
+                            <id>install-opengis</id>
+                            <configuration>
+                                <groupId>org.geotools</groupId>
+                                <artifactId>gt-opengis</artifactId>
+                                <version>${org.geotools.opengis.version}</version>
+                                <packaging>jar</packaging>
+                                <file>${project.basedir}/dependencies/gt-opengis-18.2.jar</file>
                                 <updateReleaseInfo>true</updateReleaseInfo>
                             </configuration>
                             <phase>validate</phase>
@@ -254,6 +269,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${com.google.guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-opengis</artifactId>
+                <version>${org.geotools.opengis.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

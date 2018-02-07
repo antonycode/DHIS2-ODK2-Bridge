@@ -5,9 +5,9 @@ import org.hisp.dhis.common.Pager;
 
 import java.util.List;
 
-public class OrgUnits {
+public class OrgUnits implements NameIdPairContainer<OrgUnit> {
   private Pager pager;
-  private List<OrgUnit> organisationUnits;
+  private List<OrgUnit> list;
 
   @JsonProperty
   public Pager getPager() {
@@ -18,20 +18,20 @@ public class OrgUnits {
     this.pager = pager;
   }
 
-  @JsonProperty
-  public List<OrgUnit> getOrganisationUnits() {
-    return organisationUnits;
+  @JsonProperty("organisationUnits")
+  public List<OrgUnit> getList() {
+    return list;
   }
 
-  public void setOrganisationUnits(List<OrgUnit> organisationUnits) {
-    this.organisationUnits = organisationUnits;
+  public void setList(List<OrgUnit> list) {
+    this.list = list;
   }
 
   @Override
   public String toString() {
     return "OrgUnits{" +
         "pager=" + pager +
-        ", organisationUnits=" + organisationUnits +
+        ", list=" + list +
         '}';
   }
 }

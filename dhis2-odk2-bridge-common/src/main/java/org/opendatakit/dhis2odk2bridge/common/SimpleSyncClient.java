@@ -180,6 +180,22 @@ public class SimpleSyncClient implements AutoCloseable {
     return syncClient.alterRowsUsingSingleBatch(syncEndpointUrl, syncEndpointAppId, tableId, schemaETag, dataETag, rows);
   }
 
+  public void deleteRows(String tableId, List<String> rowIds) throws IOException, JSONException {
+    String schemaETag = getSchemaETag(tableId);
+    String dataETag = getDataETag(tableId);
+
+    ArrayList<Row> rows = rowIds
+        .stream()
+        .map(id -> {
+          Row row = new Row();
+          row.setRowId(id);
+          return row;
+        })
+        .collect(Collectors.toCollection(ArrayList::new));
+
+    syncClient.deleteRowsUsingBulkUpload(syncEndpointUrl, syncEndpointAppId, tableId, schemaETag, dataETag, rows, BATCH_ALTER_LIMIT);
+  }
+
   private void logRowOutcome(RowOutcome rowOutcome) {
     switch (rowOutcome.getOutcome()) {
       case IN_CONFLICT:

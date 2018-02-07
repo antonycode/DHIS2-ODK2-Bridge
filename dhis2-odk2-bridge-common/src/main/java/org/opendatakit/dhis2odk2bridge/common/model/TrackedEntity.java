@@ -2,7 +2,7 @@ package org.opendatakit.dhis2odk2bridge.common.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DataSet implements NameIdPair {
+public class TrackedEntity implements NameIdPair {
   private String id;
   private String displayName;
 
@@ -26,7 +26,7 @@ public class DataSet implements NameIdPair {
 
   @Override
   public String toString() {
-    return "DataSet{" +
+    return "TrackedEntity{" +
         "id='" + id + '\'' +
         ", displayName='" + displayName + '\'' +
         '}';

@@ -1,5 +1,6 @@
 package org.opendatakit.dhis2odk2bridge.cli;
 
+import org.opendatakit.dhis2odk2bridge.cli.model.Config;
 import org.opendatakit.dhis2odk2bridge.common.Dhis2Client;
 import org.opendatakit.dhis2odk2bridge.common.SimpleSyncClient;
 

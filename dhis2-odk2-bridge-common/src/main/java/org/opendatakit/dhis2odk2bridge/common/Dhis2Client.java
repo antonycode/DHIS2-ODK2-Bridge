@@ -1,22 +1,30 @@
 package org.opendatakit.dhis2odk2bridge.common;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hisp.dhis.common.IdScheme;
+import org.hisp.dhis.common.OrganisationUnitSelectionMode;
 import org.hisp.dhis.common.Pager;
 import org.hisp.dhis.dxf2.common.ImportOptions;
 import org.hisp.dhis.dxf2.datavalueset.DataValueSet;
+import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstances;
+import org.hisp.dhis.dxf2.importsummary.ImportSummaries;
 import org.hisp.dhis.dxf2.importsummary.ImportSummary;
-import org.hisp.dhis.organisationunit.OrganisationUnit;
-import org.opendatakit.dhis2odk2bridge.common.model.*;
+import org.hisp.dhis.importexport.ImportStrategy;
 import org.opendatakit.dhis2odk2bridge.common.consts.Dhis2Path;
 import org.opendatakit.dhis2odk2bridge.common.consts.MimeType;
+import org.opendatakit.dhis2odk2bridge.common.model.*;
+import org.opendatakit.dhis2odk2bridge.common.util.JacksonObjectMessageSupplier;
 import org.opendatakit.dhis2odk2bridge.common.util.Util;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -54,57 +62,65 @@ public class Dhis2Client {
         .configure(MapperFeature.AUTO_DETECT_FIELDS, false)
         .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
         .configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
         .addMixIn(Pager.class, PagerMixin.class);
 
     this.logger = LogManager.getLogger();
   }
 
   public DataSets getDataSets() throws IOException {
-    HttpUrl url = baseUrl
-        .newBuilder()
-        .addPathSegment(Dhis2Path.DATA_SETS)
-        .addQueryParameter("fields", String.join(", ", "id", "name"))
-        .build();
-
-    Request request = baseRequest
-        .newBuilder()
-        .url(url)
-        .build();
-
-    try (Response response = httpClient.newCall(request).execute()) {
-      return extractEntityFromResponse(DataSets.class, response, objectMapper, "failed to get data sets");
-    }
+    return getNameIdPairContainer(DataSets.class, Dhis2Path.DATA_SETS, "failed to get data sets");
   }
 
   public Optional<String> getDataSetId(String name) throws IOException {
     Objects.requireNonNull(name);
-
-    return getDataSets()
-        .getDataSets()
-        .stream()
-        .filter(dataSet -> dataSet.getName().equals(name))
-        .findAny()
-        .map(DataSet::getId);
+    return findNameIdPairByName(getDataSets(), name);
   }
 
-  public DataValueSet getDataValueSets(String dataSet, String orgUnit, String startDate, String endDate,
+  public TrackedEntities getTrackedEntities() throws IOException {
+    return getNameIdPairContainer(TrackedEntities.class, Dhis2Path.TRACKED_ENTITIES, "failed to get tracked entities");
+  }
+
+  public Optional<String> getTrackedEntityId(String name) throws IOException {
+    Objects.requireNonNull(name);
+    return findNameIdPairByName(getTrackedEntities(), name);
+  }
+
+  public OrgUnits getOrgUnits() throws IOException {
+    return getNameIdPairContainer(OrgUnits.class, Dhis2Path.ORG_UNITS, "failed to get organization units");
+  }
+
+  public Optional<String> getOrgUnitId(String name) throws IOException {
+    Objects.requireNonNull(name);
+    return findNameIdPairByName(getOrgUnits(), name);
+  }
+
+  public TrackedEntityAttributes getTrackedEntityAttributes() throws IOException {
+    return getNameIdPairContainer(TrackedEntityAttributes.class, Dhis2Path.TRACKED_ENTITY_ATTR, "failed to get tracked entity attributes");
+  }
+
+  public DataValueSet getDataValueSets(String dataSet, List<String> orgUnit, String startDate, String endDate,
                                        boolean children, boolean includeDeleted) throws IOException {
     Objects.requireNonNull(dataSet);
     Objects.requireNonNull(orgUnit);
     Objects.requireNonNull(startDate);
     Objects.requireNonNull(endDate);
 
-    HttpUrl url = baseUrl
+    HttpUrl.Builder builder = baseUrl
         .newBuilder()
         .addPathSegment(Dhis2Path.DATA_VALUE_SETS)
         .addQueryParameter("dataSet", dataSet)
-        .addQueryParameter("orgUnit", orgUnit)
         .addQueryParameter("startDate", startDate)
         .addQueryParameter("endDate", endDate)
         .addQueryParameter("children", Boolean.toString(children))
         .addQueryParameter("includeDeleted", Boolean.toString(includeDeleted))
-        .addQueryParameter("idScheme", IdScheme.NAME.getIdentifiableString())
-        .build();
+        .addQueryParameter("idScheme", IdScheme.NAME.getIdentifiableString());
+
+    orgUnit.forEach(ou -> builder.addQueryParameter("orgUnit", ou));
+
+    HttpUrl url = builder.build();
 
     Request request = baseRequest
         .newBuilder()
@@ -116,8 +132,39 @@ public class Dhis2Client {
     }
   }
 
+  public TrackedEntityInstances getTrackedEntityInstances(String trackedEntity, List<String> orgUnit,
+                                                          OrganisationUnitSelectionMode ouMode,
+                                                          boolean includeDeleted) throws IOException {
+    Objects.requireNonNull(trackedEntity);
+    Objects.requireNonNull(orgUnit);
+    Objects.requireNonNull(ouMode);
+
+    HttpUrl.Builder builder = baseUrl
+        .newBuilder()
+        .addPathSegment(Dhis2Path.TEI)
+        .addQueryParameter("trackedEntity", trackedEntity)
+        .addQueryParameter("ouMode", ouMode.name())
+        .addQueryParameter("includeDeleted", Boolean.toString(includeDeleted));
+
+    if (ouMode != OrganisationUnitSelectionMode.ALL) {
+      builder.addQueryParameter("ou", String.join(";", orgUnit));
+    }
+
+    HttpUrl url = builder.build();
+
+    Request request = baseRequest
+        .newBuilder()
+        .url(url)
+        .build();
+
+    try (Response response = httpClient.newCall(request).execute()) {
+      return extractEntityFromResponse(TrackedEntityInstances.class, response, objectMapper, "failed to get tracked entity instances");
+    }
+  }
+
   public ImportSummary postDataValueSet(DataValueSet toPost, ImportOptions importOptions) throws IOException {
     Objects.requireNonNull(toPost);
+    Objects.requireNonNull(importOptions);
 
     HttpUrl url = baseUrl
         .newBuilder()
@@ -138,10 +185,39 @@ public class Dhis2Client {
     }
   }
 
-  public OrgUnits getOrgUnits() throws IOException {
+  public ImportSummaries postTrackedEntityInstances(TrackedEntityInstances toPost, ImportOptions importOptions) throws IOException {
+    Objects.requireNonNull(toPost);
+    Objects.requireNonNull(importOptions);
+
     HttpUrl url = baseUrl
         .newBuilder()
-        .addPathSegment(Dhis2Path.ORG_UNITS)
+        .addPathSegment(Dhis2Path.TEI)
+        .addQueryParameter("strategy", ImportStrategy.CREATE_AND_UPDATE.name())
+        .addQueryParameter("dryRun", Boolean.toString(importOptions.isDryRun()))
+        // using NAME here causes silent error on the server side
+        // the trackedEntityInstance gets persisted
+        // but not the attribute values
+        // .addQueryParameter("idScheme", IdScheme.NAME.getIdentifiableString())
+        .addQueryParameter("async", Boolean.toString(false)) // async import not supported
+        .build();
+
+    Request request = baseRequest
+        .newBuilder()
+        .url(url)
+        .post(Util.createRequestBody(TrackedEntityInstances.class, toPost, objectMapper))
+        .build();
+
+    try (Response response = httpClient.newCall(request).execute()) {
+      return extractEntityFromResponse(WebMessageWithSummaries.class, response, objectMapper, "failed to post tracked entity instances")
+          .getResponse();
+    }
+  }
+
+  private <T extends NameIdPair, U extends NameIdPairContainer<T>> U getNameIdPairContainer(Class<U> klass, String path, String errMsg) throws IOException {
+    HttpUrl url = baseUrl
+        .newBuilder()
+        .addPathSegment(path)
+        .addQueryParameter("fields", "id,displayName")
         .build();
 
     Request request = baseRequest
@@ -151,34 +227,33 @@ public class Dhis2Client {
         .build();
 
     try (Response response = httpClient.newCall(request).execute()) {
-      return extractEntityFromResponse(OrgUnits.class, response, objectMapper, "failed to get organization units");
+      return extractEntityFromResponse(klass, response, objectMapper, errMsg);
     }
   }
 
-  public Optional<String> getOrgUnitId(String name) throws IOException {
-    Objects.requireNonNull(name);
-
-    return getOrgUnits()
-        .getOrganisationUnits()
-        .stream()
-        .filter(ou -> ou.getDisplayName().equals(name))
-        .findAny()
-        .map(OrgUnit::getId);
+  private <T extends NameIdPair> Optional<String> findNameIdPairByName(NameIdPairContainer<T> list, String name) {
+    return list.getList().stream().filter(pair -> pair.getDisplayName().equals(name)).findAny().map(NameIdPair::getId);
   }
 
   private <T> T extractEntityFromResponse(Class<T> klass, Response response,
-                                                 ObjectMapper mapper, String fallbackErrMsg) throws IOException {
+                                          ObjectMapper mapper, String fallbackErrMsg) throws IOException {
     return extractEntityFromResponse(klass, response, mapper, () -> createDhis2IoException(fallbackErrMsg, response.body()));
   }
 
   private <T, E extends Throwable> T extractEntityFromResponse(Class<T> klass, Response response,
                                                                       ObjectMapper mapper, Supplier<E> exceptionSupplier)
       throws IOException, E {
+    if (!response.isSuccessful()) {
+      throw exceptionSupplier.get();
+    }
+
     try (ResponseBody body = response.body()) {
-      if (response.isSuccessful()) {
-        return mapper.readerFor(klass).readValue(body.bytes());
-      } else {
-        throw exceptionSupplier.get();
+      // body should not be null
+      try (InputStream stream = body.byteStream()) {
+        T respObj = mapper.readerFor(klass).readValue(stream);
+        logger.debug(new JacksonObjectMessageSupplier<>(mapper, respObj, klass));
+
+        return respObj;
       }
     }
   }

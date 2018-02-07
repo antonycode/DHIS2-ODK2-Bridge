@@ -2,7 +2,7 @@ package org.opendatakit.dhis2odk2bridge.common.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OrgUnit {
+public class OrgUnit implements NameIdPair {
   private String id;
   private String displayName;
 

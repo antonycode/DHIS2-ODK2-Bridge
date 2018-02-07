@@ -5,9 +5,9 @@ import org.hisp.dhis.common.Pager;
 
 import java.util.List;
 
-public class DataSets implements NameIdPairContainer<DataSet> {
+public class TrackedEntityAttributes implements NameIdPairContainer<TrackedEntityAttribute> {
   private Pager pager;
-  private List<DataSet> list;
+  private List<TrackedEntityAttribute> list;
 
   @JsonProperty
   public Pager getPager() {
@@ -18,18 +18,18 @@ public class DataSets implements NameIdPairContainer<DataSet> {
     this.pager = pager;
   }
 
-  @JsonProperty("list")
-  public List<DataSet> getList() {
+  @JsonProperty("trackedEntityAttributes")
+  public List<TrackedEntityAttribute> getList() {
     return list;
   }
 
-  public void setList(List<DataSet> list) {
+  public void setList(List<TrackedEntityAttribute> list) {
     this.list = list;
   }
 
   @Override
   public String toString() {
-    return "DataSets{" +
+    return "TrackedEntityAttributes{" +
         "pager=" + pager +
         ", list=" + list +
         '}';

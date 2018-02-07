@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
+import org.apache.logging.log4j.LogManager;
 import org.apache.wink.json4j.JSONObject;
 import org.opendatakit.dhis2odk2bridge.common.consts.MimeType;
 
@@ -35,6 +36,8 @@ public class Util {
 
       @Override
       public void writeTo(BufferedSink sink) throws IOException {
+        LogManager.getLogger().debug(new JacksonObjectMessageSupplier<>(mapper, payload, payloadClass));
+
         mapper.writerFor(payloadClass).writeValue(sink.outputStream(), payload);
       }
     };
