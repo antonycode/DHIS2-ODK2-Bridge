@@ -32,7 +32,9 @@ This utility copies data between a DHIS2 server and a Sync Endpoint server.
   
 ## Run
 
-Run CLI jar with path to your configuration file as the first argument.
+**note** Before running this bridge, make sure you have a DHIS2 server and an ODK 2 Sync Endpoint server.
+
+Run CLI jar with path to your configuration file as the first argument. The configuration should be tuned to match settings of your DHIS2 and Sync Endpoint server.
 
 For example, to run this tool with a configuration file located at `$HOME/configuration.properties`
 ```sh
@@ -46,10 +48,12 @@ docker run \
   odk/dhis2-odk2-bridge /config
 ```
 
-See [example.properties](example.properties) for detail on the configuration file. 
+See [example.properties](example.properties) for detail on the configuration file.
 
 This bridge utility only performs a one time transfer of data. If you wish to periodically transfer
 data, you will need to setup the scheduling using other tools such as [cron](https://wiki.archlinux.org/index.php/cron).
+
+See the *Usage with Malaria App* section below for an example.
 
 ## Limitation
 
