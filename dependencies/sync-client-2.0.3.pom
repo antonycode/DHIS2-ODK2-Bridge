@@ -5,7 +5,7 @@
   <artifactId>sync-client</artifactId>
   <packaging>jar</packaging>
   <version>2.0.2</version>
-  <displayName>ODK Sync REST Client</displayName>
+  <name>ODK Sync REST Client</name>
   <properties>
     <org.opendatakit-aggregate-rest-interface-version>2017-06-22</org.opendatakit-aggregate-rest-interface-version>
 
